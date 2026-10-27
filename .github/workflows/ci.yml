@@ -1,0 +1,49 @@
+name: Checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  software:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run check
+      - run: npm run test:coverage
+      - run: npm run demo -- --check
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - run: npm run test:firmware
+      - run: python3 tests/host_test.py
+      - name: Verify official Arduino CLI archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/rover-arduino-cli"
+          curl --fail --location --silent --show-error https://github.com/arduino/arduino-cli/releases/download/v1.5.1/arduino-cli_1.5.1_Linux_64bit.tar.gz --output "$RUNNER_TEMP/rover-arduino-cli.tar.gz"
+          printf '28a8e119c498a25607821c36cb2dc49e8463941b261a0d99091baa7bc692dd2b  %s\n' "$RUNNER_TEMP/rover-arduino-cli.tar.gz" | sha256sum --check
+          tar -xzf "$RUNNER_TEMP/rover-arduino-cli.tar.gz" -C "$RUNNER_TEMP/rover-arduino-cli"
+      - name: Compile Uno firmware without upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          "$RUNNER_TEMP/rover-arduino-cli/arduino-cli" core update-index
+          "$RUNNER_TEMP/rover-arduino-cli/arduino-cli" core install arduino:avr@1.8.8
+          "$RUNNER_TEMP/rover-arduino-cli/arduino-cli" compile --fqbn arduino:avr:uno --warnings all firmware/rover

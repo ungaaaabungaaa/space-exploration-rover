@@ -1,0 +1,10 @@
+scenario,maxSpeed,success,outcome,steps,timeSeconds,distanceM,replans,finalGoalDistance,observedCells,mappedFreeCells,maxSpeedObserved,maxYawObserved,maxAccelerationObserved,rejectedMotions,acceptedCollisions
+rocks,0.3,true,arrived,1124,112.4,21.850513,1,0.114218,130,87,0.3,1.4,0.5,0,0
+rocks,0.6,true,arrived,543,54.3,22.029883,1,0.031878,130,87,0.6,1.4,0.5,0,0
+rocks,0.9,true,arrived,541,54.1,22.451646,1,0.032793,130,87,0.77944,1.4,0.5,0,0
+detour,0.3,true,arrived,1509,150.9,27.924755,8,0.114218,167,120,0.3,1.4,0.5,0,0
+detour,0.6,true,arrived,805,80.5,28.013631,8,0.034359,166,120,0.6,1.4,0.5,0,0
+detour,0.9,false,safety_stop,377,37.7,9.512554,8,7.239126,70,49,0.796508,1.4,0.5,1,0
+blocked,0.3,false,unreachable,702,70.2,12.755484,10,8.993164,87,61,0.3,1.4,0.5,0,0
+blocked,0.6,false,unreachable,363,36.3,11.481529,11,8.37796,83,59,0.6,1.4,0.5,0,0
+blocked,0.9,false,safety_stop,377,37.7,9.512554,8,7.239126,70,49,0.796508,1.4,0.5,1,0
