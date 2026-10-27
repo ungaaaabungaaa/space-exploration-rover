@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-27",
+  "tool": "arduino-cli 1.5.1",
+  "core": "arduino:avr@1.8.8",
+  "fqbn": "arduino:avr:uno",
+  "compileOnly": true,
+  "flashBytes": 5872,
+  "globalSramBytes": 309,
+  "hardwareConnected": false,
+  "sources": {
+    "firmware/rover/RoverController.h": "8a5fd1b22aec3116a7ec9c2968048b8e7cbdfc9de0dd72a66d2f19bda80f2b63",
+    "firmware/rover/rover.ino": "30d74262f8bf7a98070f488a43886a9827f041c0f4dfc9e304684a786e9c47b7"
+  }
+}
