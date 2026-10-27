@@ -4,11 +4,11 @@
   "core": "arduino:avr@1.8.8",
   "fqbn": "arduino:avr:uno",
   "compileOnly": true,
-  "flashBytes": 5836,
-  "globalSramBytes": 307,
+  "flashBytes": 5872,
+  "globalSramBytes": 309,
   "hardwareConnected": false,
   "sources": {
     "firmware/rover/RoverController.h": "8a5fd1b22aec3116a7ec9c2968048b8e7cbdfc9de0dd72a66d2f19bda80f2b63",
-    "firmware/rover/rover.ino": "a70f719612ef084c4b63b0760d2da4e6a5cb6b7be6a17ac5beef218a40daedee"
+    "firmware/rover/rover.ino": "30d74262f8bf7a98070f488a43886a9827f041c0f4dfc9e304684a786e9c47b7"
   }
 }

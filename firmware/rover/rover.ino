@@ -5,12 +5,18 @@
 const uint8_t LEFT_PWM=5,RIGHT_PWM=6,LEFT_DIR=7,RIGHT_DIR=8,ARM_LED=LED_BUILTIN;
 RoverController controller;
 uint32_t lastTelemetry=0;
+bool leftNegative=false,rightNegative=false;
 
+void writeSide(uint8_t pwmPin,uint8_t directionPin,int16_t command,bool& wasNegative){
+  const bool negative=command<0;
+  if(command==0||negative!=wasNegative)analogWrite(pwmPin,0);
+  digitalWrite(directionPin,negative?LOW:HIGH);
+  if(command!=0)analogWrite(pwmPin,abs(command));
+  wasNegative=negative;
+}
 void applyOutputs(){
-  digitalWrite(LEFT_DIR,controller.left()<0?LOW:HIGH);
-  digitalWrite(RIGHT_DIR,controller.right()<0?LOW:HIGH);
-  analogWrite(LEFT_PWM,abs(controller.left()));
-  analogWrite(RIGHT_PWM,abs(controller.right()));
+  writeSide(LEFT_PWM,LEFT_DIR,controller.left(),leftNegative);
+  writeSide(RIGHT_PWM,RIGHT_DIR,controller.right(),rightNegative);
   digitalWrite(ARM_LED,controller.armed()?HIGH:LOW);
 }
 void telemetry(){

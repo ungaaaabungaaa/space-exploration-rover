@@ -16,11 +16,11 @@ CRC8 covers the bytes before `*`, polynomial0x07, initial0, no reflection or fin
 
 ARM is neutral. MOVE requires armed state, a fresh sequence and a lease from100 to 500 ms. Any invalid/stale/overflow input or unarmed movement disarms and neutralizes. The watchdog checks unsigned32-bit elapsed milliseconds before processing incoming bytes and in the main loop, including clock rollover. A late MOVE cannot renew an already expired lease. A new explicit ARM is required.
 
-Normal PWM changes by at most 20 units at a 20 ms update, with reversal reaching zero first. If a loop runs late, it does not apply several catch-up increments at once. STOP and faults neutralize immediately. Physical motor response depends on the driver, load and supply and is unverified. Telemetry is best effort: a full TX buffer drops that message rather than blocking control. RX consumes at most 32 bytes per loop.
+Normal PWM changes by at most 20 units at a 20 ms update, with reversal reaching zero first. If a loop runs late, it does not apply several catch-up increments at once. STOP and faults neutralize immediately. Physical motor response depends on the driver, load and supply and is unverified. Telemetry is best effort: a full TX buffer drops that message rather than blocking control. RX consumes at most 32 bytes per loop. The sketch sets PWM to zero before a direction transition, including STOP from reverse; an unchanged nonzero direction does not insert a PWM off/on cycle.
 
 ## Compile, never automatic upload
 
-Official Arduino CLI 1.5.1 and Arduino AVR core 1.8.8 were used with FQBN `arduino:avr:uno`. The archive was checked against the official release SHA-256 list before execution. Local results:5836 bytes flash,307 bytes static SRAM. Native C++ behavior tests compile the same controller header with address/undefined-behavior sanitizers. The real AVR compile verifies the sketch and pin API, not physical timing or motor behavior.
+Official Arduino CLI 1.5.1 and Arduino AVR core 1.8.8 were used with FQBN `arduino:avr:uno`. The archive was checked against the official release SHA-256 list before execution. Local results:5872 bytes flash,309 bytes static SRAM. Native C++ behavior tests compile the same controller header with address/undefined-behavior sanitizers. The real AVR compile verifies the sketch and pin API, not physical timing or motor behavior.
 
 CI uses a checksum-pinned official Linux CLI archive, compiles the Uno sketch and runs native controller and Python host tests. It has no upload step or board access.
 

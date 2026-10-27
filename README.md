@@ -89,7 +89,7 @@ arduino-cli core install arduino:avr@1.8.8
 arduino-cli compile --fqbn arduino:avr:uno --warnings all firmware/rover
 ```
 
-The local compile used CLI 1.5.1 and AVR core 1.8.8: 5836 bytes flash and 307 bytes global SRAM. Warnings were in the supplied Arduino core's unused `tag` parameters. No upload, serial device opening or physical motor test was performed.
+The local compile used CLI 1.5.1 and AVR core 1.8.8: 5872 bytes flash and 309 bytes global SRAM. Warnings were in the supplied Arduino core's unused `tag` parameters. No upload, serial device opening or physical motor test was performed.
 
 Test the actual controller header natively and exercise the opt-in host without hardware:
 
