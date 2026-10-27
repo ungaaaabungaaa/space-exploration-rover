@@ -1,6 +1,6 @@
 # Space rover software and bench firmware
 
-Approved mapping: arduino_myProject → space-exploration-rover. Original main `005549f9d996ea1f9df9afabf17ecddddf72f5fc` is saved and verified remotely at `archive/before-space-rover-2026-10-27`. Repository ID550864402 / R_kgDOINWGEg and17stars retained. The old sketches have no license file; new code is original and MIT applies only to new files. MyPortfolio remains unchanged. No generated cover is approved.
+Approved mapping: arduino_myProject → space-exploration-rover. Original main `005549f9d996ea1f9df9afabf17ecddddf72f5fc` is saved and verified remotely at `archive/before-space-rover-2026-10-27`. Repository ID550864402 / R_kgDOINWGEg and17stars retained. The old sketches have no license file; new code is original and MIT applies only to new files. MyPortfolio remains unchanged. The user approved rover v3 line-art cover 8 on27October2026; the README includes that exact PNG and its portable provenance. MyPortfolio artwork remains unchanged.
 
 ## Design
 
@@ -22,3 +22,7 @@ Firmware has fixed-size parsing, CRC8, sequence checks, neutral boot, explicit A
 ## Limits
 
 Software only: no physical rover, flight/space deployment, electronics certification, current sizing, traction calibration or physical emergency-stop verification. The safety shield uses simulator ground truth, not onboard perception. A failed simulation can end with a moving model state; its rejection does not prove a realizable stop. PWM is open-loop and not metres/second. Hardware requires human assembly and bench evidence.
+
+## Final bench correction
+
+The actual sketch now neutralizes PWM before any direction transition, including STOP from negative output, without an off/on interruption on unchanged nonzero output. A native Arduino API mock includes the actual `.ino` and reproduced the prior bad call order before the correction. Eleven controller behavior groups and the sketch output regression pass under sanitizers. Official Uno compilation of the corrected source uses5872bytes flash and309bytes global SRAM. This is software/compile evidence, not physical pin timing or hardware acceptance.
