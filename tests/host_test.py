@@ -87,6 +87,45 @@ class HostTests(unittest.TestCase):
             next(commands)
         self.assertEqual(stream.calls, [82, 82])
 
+    def test_telemetry_rejects_extra_line_terminators(self):
+        body = "T1,5,A,0,0,0"
+        frame = f"{body}*{host.crc8(body):02X}".encode()
+        self.assertEqual(host.telemetry(frame + b"\n")["state"], "A")
+        self.assertEqual(host.telemetry(frame + b"\r\n")["state"], "A")
+        for ending in (b"\r\r\n", b"\n\n", b"\r\n\n", b"\r\n\r\n"):
+            with self.subTest(ending=ending), self.assertRaises(ValueError):
+                host.telemetry(frame + ending)
+
+    @unittest.skipUnless(hasattr(os, "openpty"), "POSIX pseudo-terminal required")
+    def test_tty_rejects_malformed_ack_without_retry(self):
+        master, slave = os.openpty()
+        port = host.Port(os.ttyname(slave))
+        commands = []
+        errors = []
+        def respond():
+            try:
+                if not select.select([master], [], [], 1)[0]:
+                    raise AssertionError("No command arrived")
+                commands.append(os.read(master, 128))
+                body = "T1,1,A,0,0,0"
+                os.write(master, f"{body}*{host.crc8(body):02X}\r\r\n".encode())
+            except Exception as error:
+                errors.append(error)
+        responder = threading.Thread(target=respond)
+        responder.start()
+        try:
+            with self.assertRaises(ValueError):
+                port.exchange(host.encode(1, "A"), 1)
+            responder.join(timeout=2)
+            self.assertFalse(responder.is_alive())
+            self.assertEqual(errors, [])
+            self.assertEqual(commands, [host.encode(1, "A")])
+            self.assertFalse(select.select([master], [], [], 0)[0])
+        finally:
+            port.close()
+            os.close(master)
+            os.close(slave)
+
     def test_bounds(self):
         for fields in [(1, "M", 181, 0, 300), (1, "A", 1, 0, 300), (1, "M", 0, 0, 501), (1, "", 0, 0, 300), (1.5, "A", 0, 0, 300), (1, "M", 1.5, 0, 300)]:
             with self.assertRaises(ValueError):
