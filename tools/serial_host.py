@@ -25,7 +25,9 @@ def encode(sequence, command, left=0, right=0, lease=300):
 def telemetry(raw):
     if len(raw) > 64 or not raw.endswith(b"\n"):
         raise ValueError("Invalid telemetry length")
-    text = raw.decode("ascii").rstrip("\r\n")
+    text = raw[:-1].decode("ascii")
+    if text.endswith("\r"):
+        text = text[:-1]
     match = re.fullmatch(r"(T1,(0|[1-9][0-9]*),([AD]),(-?(?:0|[1-9][0-9]*)),(-?(?:0|[1-9][0-9]*)),([0-5]))\*([0-9A-Fa-f]{2})", text)
     if not match or crc8(match[1]) != int(match[7], 16):
         raise ValueError("Invalid telemetry CRC or schema")
