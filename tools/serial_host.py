@@ -54,8 +54,19 @@ class Port:
             os.close(self.fd)
             raise
         self.buffer = bytearray()
+        self.failed = False
 
     def exchange(self, frame, sequence):
+        if self.failed:
+            raise ConnectionError("Serial exchange failed; close and reopen explicitly before sending commands")
+        try:
+            return self._exchange(frame, sequence)
+        except (OSError, ValueError, KeyboardInterrupt):
+            self.failed = True
+            self.buffer.clear()
+            raise
+
+    def _exchange(self, frame, sequence):
         deadline = time.monotonic() + 1.0
         offset = 0
         while offset < len(frame):
