@@ -6,6 +6,7 @@ import time
 import subprocess
 import sys
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -121,6 +122,41 @@ class HostTests(unittest.TestCase):
             self.assertEqual(errors, [])
             self.assertEqual(commands, [host.encode(1, "A")])
             self.assertFalse(select.select([master], [], [], 0)[0])
+        finally:
+            port.close()
+            os.close(master)
+            os.close(slave)
+
+    @unittest.skipUnless(hasattr(os, "openpty"), "POSIX pseudo-terminal required")
+    def test_disconnect_latches_transport_before_any_retry(self):
+        master, slave = os.openpty()
+        port = host.Port(os.ttyname(slave))
+        os.close(master)
+        try:
+            with self.assertRaises(OSError):
+                port.exchange(host.encode(1, "A"), 1)
+            self.assertTrue(port.failed)
+            with patch.object(host.os, "write") as write:
+                with self.assertRaisesRegex(ConnectionError, "close and reopen"):
+                    port.exchange(host.encode(2, "M", 30, 30), 2)
+                write.assert_not_called()
+            self.assertEqual(port.buffer, bytearray())
+        finally:
+            port.close()
+            os.close(slave)
+
+    @unittest.skipUnless(hasattr(os, "openpty"), "POSIX pseudo-terminal required")
+    def test_dropped_ack_latches_transport_instead_of_allowing_retry(self):
+        master, slave = os.openpty()
+        port = host.Port(os.ttyname(slave))
+        try:
+            with self.assertRaises(TimeoutError):
+                port.exchange(host.encode(1, "A"), 1)
+            self.assertEqual(os.read(master, 128), host.encode(1, "A"))
+            with patch.object(host.os, "write") as write:
+                with self.assertRaisesRegex(ConnectionError, "close and reopen"):
+                    port.exchange(host.encode(2, "A"), 2)
+                write.assert_not_called()
         finally:
             port.close()
             os.close(master)
